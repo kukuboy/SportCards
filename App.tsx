@@ -10,63 +10,89 @@
 
 import React from 'react';
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-    Image,
+    SafeAreaView,
+    StyleSheet,
+    useColorScheme,
+    View,
+    ScrollView
 } from 'react-native';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
+import * as eva from '@eva-design/eva';
+import {ApplicationProvider, Layout, Text} from '@ui-kitten/components';import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { BottomNavigation, BottomNavigationTab, Layout, Text } from '@ui-kitten/components';
 
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+const { Navigator, Screen } = createBottomTabNavigator();
 
-import { getCards } from './http'
+const UsersScreen = () => (
+    <Layout style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text category='h1'>USERS</Text>
+    </Layout>
+);
+
+const OrdersScreen = () => (
+    <Layout style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text category='h1'>ORDERS</Text>
+    </Layout>
+);
+
+const BottomTabBar = ({ navigation, state }) => (
+    <BottomNavigation
+        selectedIndex={state.index}
+        onSelect={index => navigation.navigate(state.routeNames[index])}>
+        <BottomNavigationTab title='USERS'/>
+        <BottomNavigationTab title='ORDERS'/>
+    </BottomNavigation>
+);
+
+const TabNavigator = () => (
+    <Navigator tabBar={props => <BottomTabBar {...props} />}>
+        <Screen name='Users' component={UsersScreen}/>
+        <Screen name='Orders' component={OrdersScreen}/>
+    </Navigator>
+);
+
+export const AppNavigator = () => (
+    <NavigationContainer>
+        <TabNavigator/>
+    </NavigationContainer>
+);
+
+
+import {getCards} from './http'
+
+import Card from './src/Card';
 
 const App = () => {
-  const isDarkMode = useColorScheme() === 'dark';
-  const cards = getCards()
+    const [index, setIndex] = React.useState(0);
+    const isDarkMode = useColorScheme() === 'dark';
+    // const cards = getCards()
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+    const backgroundStyle = {
+        backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+    };
+    const appStyle = StyleSheet.create({
+        BodyStyle: {
+            width: '100%',
+            height: '100%',
+        },
+        TabItemStyle: {
+            width: '100%',
+            height: '90%'
+        },
+        TabStyle: {
+            width: '100%',
+            height: '10%'
+        }
+    })
 
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-            <Image style={{width:'50%', height: '500px'}} source={require('./images/sportCardBg.jpeg')} />
-            <Text>{JSON.stringify(cards)}</Text>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
+    return (
+        <ApplicationProvider {...eva} theme={eva.light}>
+            <SafeAreaView style={backgroundStyle}>
+              <AppNavigator />
+            </SafeAreaView>
+        </ApplicationProvider>
+    );
 };
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
 
 export default App;
